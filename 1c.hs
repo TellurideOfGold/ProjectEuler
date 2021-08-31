@@ -1,4 +1,3 @@
-import Data.List (transpose)
 import System.Environment
 
 -- Problem 1 asks us to find the sum of all the multiples of 3 and 5 below 1000. This program will find that sum for any positive bound.
