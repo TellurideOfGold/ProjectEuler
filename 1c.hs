@@ -15,6 +15,6 @@ threesAndFivesToN n = let n' = n - 1 in (sumMultiplesOfTo 3 n') + (sumMultiplesO
 
 main = do
     a <- getArgs
-    let n = read (head a) :: Int
+    let n = read (head a) :: Integer
     print $ threesAndFivesToN n
 
