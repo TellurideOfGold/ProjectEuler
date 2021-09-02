@@ -4,7 +4,7 @@ import System.Environment
 -- The solution is to cache previous values in an optimization called memoization.
 -- In some languages this might be a bit of a challange, but in this one we have lazy infinite datastructures.
 
--- The "lazy" here means that a value will not be computed untill it is actually needed.
+-- The "lazy" here means that a value will not be computed until it is actually needed.
 -- If were to make an infinite list of items but only ask for the first the rest will never be computed.
 -- Likewise, if we map a function over an infinite list nothing will be applyed untill the item in question is needed.
 
@@ -19,7 +19,7 @@ fib =
 -- Now when fib is called each recursive call will only need to be evaluated the first time it is asked for.
 -- The gain in speed is appreciable.
 -- The previous solution required 0.800 seconds to find the solution for an input of 4000000 (the bound in the origional puzzle).
--- This solution takes 
+-- This solution instant 0.019s.
 
 main = do
     a <- getArgs
