@@ -6,7 +6,7 @@ import System.Environment
 
 -- The "lazy" here means that a value will not be computed until it is actually needed.
 -- If were to make an infinite list of items but only ask for the first the rest will never be computed.
--- Likewise, if we map a function over an infinite list nothing will be applyed untill the item in question is needed.
+-- Likewise, if we map a function over an infinite list nothing will be applyed until the item in question is needed.
 
 -- All of this means that we can memoize recursively defined functions by like so:
 fib =
