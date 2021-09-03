@@ -23,6 +23,6 @@ fib =
 
 main = do
     a <- getArgs
-    let n = read (head a) :: Int
+    let n = read (head a) :: Integer
     print . sum . takeWhile (< n) . map fib $ [0,3..] -- infinite list of multiples of 3
 
