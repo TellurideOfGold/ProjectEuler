@@ -1,6 +1,10 @@
 
 
+
+
 [TOC]
+
+
 
 # Project Euler
 
@@ -23,8 +27,8 @@ Problem 1 asks us to find the sum of all the multiples of 3 or 5 below some boun
 First let's make our infinite list. The multiples of two coprime integers will form a pattern in which some basis repeats over and over, increasing each time by the product of said integers. In the case of 3 and 5, that pattern looks a bit like this:
 
 ```pseudocode
-3,		5, 		6, 		9, 		10, 		12, 		15,
-3+15, 5+15, 6+15, 9+15, 10+15, 	12+15, 	15+15,
+3,    5,    6, 	  9,    10,    12,    15,
+3+15, 5+15, 6+15, 9+15, 10+15, 12+15, 15+15,
 …
 ```
 
@@ -77,9 +81,11 @@ If you list out all the numbers from 1 to 100, you can arrange them into 50 pair
 ```
 
 In fact this can be done with any upper limit, giving rise to the following formula:
+
 $$
 \sum_{x=1}^nx=\frac{n(n+1)}{2}
 $$
+
 We can easily translate this into a short Haskell function: ```sum1To n = quot (n * (n + 1)) 2```. Multiplying each term of a summation by a constant is the same as multiplying the total by that constant, so a function to find the sum of multiples of a number below some limit is trivial: ```sumMultiplesOfTo m n = m * sum1To (quot n m)```. Note that we divide the bound by the multiplier before passing it to the ```sum1To``` function!
 
 Finally, we can write the solution. Add the sum of multiples of 3 to the sum of multiples of 5, but since the multiples of 15 show up in *both* lists we need to subtract out the "duplicates":
@@ -119,11 +125,15 @@ main = do
 ### Initial Solution (2.hs)
 
 Problem 2 asks us to find the sum of the even fibonacci numbers whose value stays below some bound (4,000,000 in the problem statement). The fibonacci sequence is defined with the following recurrence relation:
+
 $$
 F_0 = 0 \\
+
 F_1 = 1 \\
+
 F_n = F_{n-1} + F_{n-2}
 $$
+
 (the problem starts the sequence with 1 and 2 but this will not affect the value of the answer)
 
 From this definition it should be clear that every 3rd number will be even:
@@ -216,8 +226,7 @@ Now when ```fib``` is called it maps the worker function ```fib'``` over an infi
 import System.Environment
 
 -- Now with memoization!
-fib =
-    (map fib' [0..] !!)
+fib = (map fib' [0..] !!)
     where
         fib' 0 = 0
         fib' 1 = 1

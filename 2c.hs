@@ -1,8 +1,7 @@
 import System.Environment
 
 -- Now with memoization!
-fib =
-    (map fib' [0..] !!)
+fib = (map fib' [0..] !!)
     where
         fib' 0 = 0
         fib' 1 = 1
