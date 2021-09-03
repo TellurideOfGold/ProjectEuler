@@ -71,13 +71,13 @@ One day in the 1700's, the someday to be legendary mathematician Carl Friedrich 
 If you list out all the numbers from 1 to 100, you can arrange them into 50 pairs that all sum to 101:
 
 ```pseudocode
-1		+	100 = 101
-2		+	99	= 101
-3 	+	98	= 101
+1   + 100   = 101
+2   + 99    = 101
+3   + 98    = 101
 …
-48  + 53  = 101
-49 	+ 52	= 101
-50	+ 51	= 101
+48  + 53    = 101
+49  + 52    = 101
+50  + 51    = 101
 ```
 
 In fact this can be done with any upper limit, giving rise to the following formula:
