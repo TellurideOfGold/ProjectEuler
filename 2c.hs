@@ -19,7 +19,7 @@ fib =
 -- Now when fib is called each recursive call will only need to be evaluated the first time it is asked for.
 -- The gain in speed is appreciable.
 -- The previous solution required 0.800 seconds to find the solution for an input of 4000000 (the bound in the origional puzzle).
--- This solution instant 0.019s.
+-- This solution is almost instant (0.019s).
 
 main = do
     a <- getArgs
