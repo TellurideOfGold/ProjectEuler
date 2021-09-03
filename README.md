@@ -91,7 +91,9 @@ We can easily translate this into a short Haskell function: ```sum1To n = quot (
 Finally, we can write the solution. Add the sum of multiples of 3 to the sum of multiples of 5, but since the multiples of 15 show up in *both* lists we need to subtract out the "duplicates":
 
 ```haskell
-threesAndFivesToN n = let n' = n - 1 in (sumMultiplesOfTo 3 n') + (sumMultiplesOfTo 5 n') - (sumMultiplesOfTo 15 n')
+threesAndFivesToN n =
+    let n' = n - 1
+    in  (sumMultiplesOfTo 3 n') + (sumMultiplesOfTo 5 n') - (sumMultiplesOfTo 15 n')
 ```
 
 Also note that we subtract 1 from the input; this is because our function has an inclusive upper bound while the problem is posed with an exclusive upper bound.
