@@ -108,7 +108,9 @@ sum1To n = quot (n * (n + 1)) 2
 sumMultiplesOfTo m n = m * sum1To (quot n m)
 
 -- Add it all up, making sure to subtract out the duplicates:
-threesAndFivesToN n = let n' = n - 1 in (sumMultiplesOfTo 3 n') + (sumMultiplesOfTo 5 n') - (sumMultiplesOfTo 15 n')
+threesAndFivesToN n =
+    let n' = n - 1
+    in  (sumMultiplesOfTo 3 n') + (sumMultiplesOfTo 5 n') - (sumMultiplesOfTo 15 n')
 
 main = do
     a <- getArgs
