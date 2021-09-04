@@ -62,7 +62,7 @@ main = do
 
 ### Cheat 1 (1c.hs)
 
-The above solution works, but there's a much faster way. Wouldn't it be neat if we 
+The above solution works, but there's a much faster way. Wouldn't it be neat if we could compute the sum directly? Without adding up all the intermediate values?
 
 One day in the 1700's, the someday to be legendary mathematician Carl Friedrich Gauss was an 8 year old student of elementary school. His teacher, probably hoping to keep his young charges occupied for a while, instructed the class to add up all the numbers from 1 to 100. But in just a moment, Gauss found the answer! And this s what he saw:
 
@@ -96,7 +96,7 @@ threesAndFivesToN n =
 
 Also note that we subtract 1 from the input; this is because our function has an inclusive upper bound while the problem is posed with an exclusive upper bound.
 
-And that's that! This version is much faster than the previous one. 1.hs (compiled woth -O2) takes 8.532s on my machine for an input of 1,000,000. 1c.hs is almost instant (0.020s) and will happily churn out answers thousands of digits long.
+And that's that! This version is much faster than the previous one. 1.hs (compiled with -O2) takes 8.532s on my machine for an input of 1,000,000. 1c.hs is almost instant (0.020s) and will happily churn out answers thousands of digits long.
 
 ```haskell
 import System.Environment
