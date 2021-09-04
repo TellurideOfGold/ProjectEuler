@@ -289,7 +289,7 @@ fibs | tail fibs | zipWith (+) fibs (tail fibs)
 2™   | 3†        | 2™ + 3†  -- Hey, we have… I think you can see where this is going.
 ```
 
-Now we don't need ```map fib [0,3..]``` to generate our infinite list, we already have the numbers in an infinite list! We only need every 3rd number remember, so we'll write up a quick anonymous function that gets every 3rd item from a list:
+Now we don't need ```map fib [0,3..]``` to generate our infinite list, we already have the numbers in an infinite list! We only need every 3rd number remember, so we'll write up a quick anonymous function that gets every 3rd item from an infinite list:
 
 ```haskell
 import Data.Function (fix) -- Ah, the fixed point combinator. Where would we be without you?
