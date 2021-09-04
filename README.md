@@ -1,7 +1,5 @@
 
 
-
-
 [TOC]
 
 
@@ -244,3 +242,154 @@ main = do
 
 This is much faster than the original. 2.hs takes an embarrassing 0.800s for the problem statement's given bound of 4,000,000 while 2c.hs gets it done almost instantly (0.020s). However, this still isn't the most efficient…
 
+### Cheat 2 (2cc.hs)
+
+The numbers we need to work with to see any performance difference between versions are now enormous. Since these numbers are bothersome to type, the first change I've made is to make the program expect as its input the exponent for a power of 2. This way an unwieldy bound like 2<sup>320</sup> can be entered as "320" instead of "2135987035920910082395021706169552114602704522356652769947041607822219725780640550022962086936576".
+
+```haskell
+-- Before:
+    a <- getArgs
+    let n = read (head a) :: Integer
+
+-- After:
+    a <- getArgs
+    let n = ((2^) . read . head) a :: Integer
+```
+
+Now that that's out of the way with, we can get to actual algorithm changes.
+
+There are 2 problems with the memoization in the previous solution, relating to what exactly is and isn't cached.
+
+The first is sortof obvious; nothing is saved between calls. In other contexts this behavior can be good for memory performance, but here it's a waste. The solution, however, is simple: give the list a name. Datastructures with names are persistent, so if we want our infinite list to remain in memory between calls we can just do something like this:
+
+```haskell
+fibs = (map fib' [0..])
+    where
+        fib' 0 = 0
+        fib' 1 = 1
+        fib' n = fib (n - 1) + fib (n - 2)
+
+fib n = fibs !! n
+```
+
+That solves our first problem, but it gives us an idea about something to eliminate. If we're just going through the list in order anyway, why not ignore ```fib``` and use ```fibs``` directly? Lets think through this. The list has to start ```[0, 1, …]```, but how do we get ```…```? The answer is deceptively simple. Each term is the previous term added to the term before that, iterating off into infinity. A list made by zippering together two slightly shifted versions of itself. What if we try writing that idea down in code? We have a function ```zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]``` that seems to do what we want, and if we call the list from where we were at ```…``` the fibs we get will be 2 elements behind where we are. All we need now is a version of fibs starting one element ahead of the one we just called, and we can get it by dropping the first element with ```tail```. Putting it all together we get something that at first might look like it shouldn't work:
+
+```haskell
+-- Zipping a list with itself from the past:
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+```
+
+This is another place where walking through an evaluation might help you understand what's going on.
+
+```haskell
+fibs | tail fibs | zipWith (+) fibs (tail fibs)
+0    | 1         | 0  + 1   -- Hey, we have (fibs !! 2) now! I'll put it in the next rows and mark it *.
+1    | 1*        | 1  + 1*  -- Hey, we have (fibs !! 3) now! I'll put it in the next rows and mark it ™.
+1*   | 2™        | 1* + 2™  -- Hey, we have (fibs !! 4) now! I'll put it in the next rows and mark it †.
+2™   | 3†        | 2™ + 3†  -- Hey, we have… I think you can see where this is going.
+```
+
+Now we don't need ```map fib [0,3..]``` to generate our infinite list, we already have the numbers in an infinite list! We only need every 3rd number remember, so we'll write up a quick anonymous function that gets every 3rd item from a list:
+
+```haskell
+import Data.Function (fix) -- Ah, the fixed point combinator. Where would we be without you?
+
+-- For those unfamiliar, it's defined like this:
+fix' f = let x = f x in x
+-- That beautiful little ouroboros lets you write recursive anonymous functions.
+
+-- This will grab every 3rd item from an infinite list very efficiently:
+fix (\ r (a:_:_:as) -> a : r as)
+```
+
+From here the implementation is pretty straightforward:
+
+```haskell
+import System.Environment
+import Data.Function (fix)
+
+-- Persistant infinite list of fibonacci numbers:
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+
+main = do
+    a <- getArgs
+    let n = ((2^) . read . head) a :: Integer
+    print . sum . takeWhile (< n) . fix (\ r (a:_:_:as) -> a : r as) $ fibs
+```
+
+Once again this is significantly faster than the last version. 2c.hs takes 1.203s for an input of 2<sup>8192</sup>; 2cc.hs is nearly instant (0.019s).
+
+### Cheat 3 (2ccc.hs)
+
+You didn't think we were done yet, did you?
+
+In the last version we efficiently made an infinite list of fibonacci numbers and then added up every third number below our limit. An obvious place to look for efficiency gains is by avoiding calculating all those inbetween terms. After all, they do account for two thirds of the list. Lets see if there's some way to get F<sub>n</sub> solely in terms of F<sub>n - {some multiple of 3}</sub>:
+
+```pseudocode
+F(n) = F(n-1) + F(n-2) // Expand!
+F(n) = F(n-2) + F(n-3) + F(n-3) + F(n-4) // Here's some F(n-3)s, lets group them together.
+F(n) = 2F(n-3) + F(n-2) + F(n-4) // Keep expanding terms!
+F(n) = 2F(n-3) + F(n-3) + F(n-4) + F(n-5) + F(n-6) // Here's some F(n-3)s and an F(n-6)s!
+F(n) = 3F(n-3) + F(n-6) + F(n-4) + F(n-5) // Wait, F(n-4) + F(n-5) is F(n-3)!
+F(n) = 4F(n-3) + F(n-6) // Ladies and gentelmen, we got 'em.
+
+Ef(0) = 0
+Ef(1) = 2
+Ef(n) = 4Ef(n-1) + Ef(n-2)
+```
+
+From here its trivial to rework our list from before to be a list of *only* the even fibonacci numbers:
+
+```haskell
+efibs = 0 : 2 : zipWith (+) efibs ((map (4 *) . tail) efibs)
+```
+
+Now we can drop that anonymous item skipping function and throw ```efibs``` right where ```fibs``` was:
+
+```haskell
+import System.Environment
+
+-- Persistant infinite list of *even* fibonacci numbers:
+efibs = 0 : 2 : zipWith (+) efibs ((map (4 *) . tail) efibs)
+
+main = do
+    a <- getArgs
+    let n = ((2^) . read . head) a :: Integer
+    print . sum . takeWhile (< n) $ efibs
+```
+
+On to performance! These ones are closer to eachother than the last few, so I've added the ```-prof```, ```-fprof-auto```, and ```-RTS``` flags to ghc's arguments and run the programs with the ```+RTS -p``` arguments. This generates a helpful profiling output that - while slightly inaccurate to real life elapsed time - is very precise. Here's the profiling output after giving both programs an input of 2<sup>1,000,000</sup> (I've cut out the cost center breakdown to reduce clutter):
+
+```
+	Sat Sep  4 01:27 2021 Time and Allocation Profiling Report  (Final)
+
+	   2cc +RTS -p -RTS 1000000
+
+	total time  =        6.42 secs   (6415 ticks @ 1000 us, 1 processor)
+	total alloc = 121,474,472,920 bytes  (excludes profiling overheads)
+
+COST CENTRE MODULE SRC                   %time %alloc
+
+fibs        Main   2cc.hs:5:1-43          73.5   75.1
+main        Main   2cc.hs:(7,1)-(10,75)   26.2   24.9
+```
+
+```
+	Sat Sep  4 01:27 2021 Time and Allocation Profiling Report  (Final)
+
+	   2ccc +RTS -p -RTS 1000000
+
+	total time  =        5.25 secs   (5255 ticks @ 1000 us, 1 processor)
+	total alloc = 91,363,938,120 bytes  (excludes profiling overheads)
+
+COST CENTRE MODULE SRC                   %time %alloc
+
+efibs       Main   2ccc.hs:4:1-60         69.3   66.9
+main        Main   2ccc.hs:(6,1)-(9,41)   30.7   33.1
+```
+
+"Wait," I hear you say. "this version is only 22% faster? Why even bother! The other "cheats" were all wildly faster than their predecessor! What gives?"
+
+Well there *is* a significant speed increase to be had in the next version, but it's already going to involve introducing more than one big new idea. In light of that, this solution was partially meant to break off the idea of a direct even fibonacci number sequence on its own and reduce the burden on the next cheat explanation.
+
+But aside from that, it's important to note that there aren't always huge asymptotic speedups to be had. A lot of real world optimization involves many small improvements and few (if any) big ones.
