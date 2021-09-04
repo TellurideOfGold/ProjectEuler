@@ -272,21 +272,23 @@ fibs = (map fib' [0..])
 fib n = fibs !! n
 ```
 
-That solves our first problem, but it gives us an idea about something to eliminate. If we're just going through the list in order anyway, why not ignore ```fib``` and use ```fibs``` directly? Lets think through this. The list has to start ```[0, 1, …]```, but how do we get ```…```? The answer is deceptively simple. Each term is the previous term added to the term before that, iterating off into infinity. A list made by zippering together two slightly shifted versions of itself. What if we try writing that idea down in code? We have a function ```zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]``` that seems to do what we want, and if we call the list from where we were at ```…``` the fibs we get will be 2 elements behind where we are. All we need now is a version of fibs starting one element ahead of the one we just called, and we can get it by dropping the first element with ```tail```. Putting it all together we get something that at first might look like it shouldn't work:
+That solves our first problem, but it gives us an idea about something to eliminate. If we're just going through the list in order anyway, why not ignore ```fib``` and use ```fibs``` directly? Lets think through this. The list has to start ```[0, 1, …]```, but how do we get ```…```? The answer is deceptively simple. Each term is the previous term added to the term before that, iterating off into infinity. A list made by zippering together two slightly shifted versions of itself. What if we try writing that idea down in code? We have a function ```zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]``` that seems to do what we want, and if we call the list from where we were at (```…```) the ```fibs``` we get will be 2 elements behind where we are. All we need now is a version of ```fibs``` starting one element ahead of the one we just called, and we can get it by dropping the first element with ```tail```. Putting it all together we get something that at first might look like it shouldn't work:
 
 ```haskell
 -- Zipping a list with itself from the past:
 fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
 ```
 
-This is another place where walking through an evaluation might help you understand what's going on.
+This is another place where walking through an evaluation might help you understand what's going on. I'll denote the ```fibs``` we get inside ```zipWith``` as ```fibs'```:
 
 ```haskell
-fibs | tail fibs | zipWith (+) fibs (tail fibs)
-0    | 1         | 0  + 1   -- Hey, we have (fibs !! 2) now! I'll put it in the next rows and mark it *.
-1    | 1*        | 1  + 1*  -- Hey, we have (fibs !! 3) now! I'll put it in the next rows and mark it ™.
-1*   | 2™        | 1* + 2™  -- Hey, we have (fibs !! 4) now! I'll put it in the next rows and mark it †.
-2™   | 3†        | 2™ + 3†  -- Hey, we have… I think you can see where this is going.
+fibs | fibs' | tail fibs' | zipWith (+) fibs' (tail fibs' )
+0    |   not called yet   |
+1    |   not called yet   |
+1*   | 0     | 1          | 0  + 1   -- Hey, we have (fibs !! 2) now! I'll mark it *.
+2™   | 1     | 1*         | 1  + 1*  -- Hey, we have (fibs !! 3) now! I'll mark it ™.
+3†   | 1*    | 2™         | 1* + 2™  -- Hey, we have (fibs !! 4) now! I'll mark it †.
+5    | 2™    | 3†         | 2™ + 3†  -- Hey, we have… I think you can see where this is going.
 ```
 
 Now we don't need ```map fib [0,3..]``` to generate our infinite list, we already have the numbers in an infinite list! We only need every 3rd number remember, so we'll write up a quick anonymous function that gets every 3rd item from an infinite list:
