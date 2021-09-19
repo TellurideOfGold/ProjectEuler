@@ -601,16 +601,16 @@ Lets look at how a simple search might play out:
 
 Much like with other divide and conquer algorithms, even in the worst case the number of "expensive" operations ends up being proportional to the logarithm of the size of the input. In the above case, the "expensive" operations are accessing collection elements and comparison operations on those elements. In our case, it will be the F<sub>n</sub> or Ef<sub>n</sub> calculation.
 
-Let's write our binary search function. We will make 1 or 2 small changes to the classic algorithm get what we want. Instead of returning the index corresponding to the *exact* target value we asked about and failing if the target isn't there, we want the index of the *largest value less than or equal to* our target:
+Let's write our binary search function. We'll make 2 small changes to the classic algorithm to get what we want. Instead of returning the index corresponding to the *exact* target value we asked about and failing if the target isn't there, we want the index of the *largest value less than* our target:
 
 ```haskell
 bSearch f t l u =
     case 1 == u - l of
-        True  -> l     -- if u - l = 1 then l must be the largest index below target
+        True  -> l -- if u - l = 1 then l must be the largest index below target
         False -> let m = quot (l + u) 2 in
             case compare (f m) t of
                 LT -> bSearch f t m u
-                EQ -> m
+                EQ -> m - 1 -- if f m = t then f (m - 1) is the largest value less than the target
                 GT -> bSearch f t l m
 ```
 
@@ -623,6 +623,8 @@ This function takes 4 inputs:
 
 The main difference here shows up in the first stopping criterion: where originally the search would terminate in failure if l and u crossed, now the algorithm returns l if l and u are separated by 1. As a consequence, the midpoint *is* included in the next round of the search. Think about it: if we throw out m and the target value is between m-1 and m (making m-1 the correct return value), m-1 becomes our new upper bound. The upper bound in this search is exclusive, so we've just thrown out our answer!
 
+The other change is that the search needs to return m-1 if m is equal to the target, unlike the original which returned m. This is because we want the largest value *less than* the target – not the largest value *less than or equal to* the target.
+
 From here we use the exponential search to find the initial values for l and u. All it does is iterate through the powers of 2 until it finds one that exceeds the target.
 
 ```haskell
@@ -634,21 +636,24 @@ expSearch f t =
     in  bSearch f t l u
 ```
 
-Now we can just throw ```fib``` or ```efib``` at ```expSearch``` and we'll get an inverse fibonacci or even-fibonacci function respectively:
+Now we can just throw ```fib``` or ```efib``` at ```expSearch``` and we'll get the behavior we were looking for:
 
 ```haskell
 λ fib 58
 591286729879
 (0.01 secs, 85,048 bytes)
-λ expSearch fib 591286729879
+λ expSearch' fib $ 591286729879 + 8127634
 58
-(0.01 secs, 147,056 bytes)
-λ expSearch fib $ 591286729879 + 64536
+(0.02 secs, 152,096 bytes)
+λ expSearch' fib $ 591286729879 + 1
 58
-(0.01 secs, 159,240 bytes)
-λ expSearch fib $ 591286729879 - 1
+(0.02 secs, 151,952 bytes)
+λ expSearch' fib $ 591286729879
 57
-(0.01 secs, 154,416 bytes)
+(0.02 secs, 144,928 bytes)
+λ expSearch' fib $ 591286729879 - 8127634
+57
+(0.02 secs, 155,456 bytes)
 ```
 
 And now, finally, we can write our program.
@@ -675,7 +680,7 @@ Which I will occasionally use for clarity.
 instance (Num a) => Num (SqMat2 a) where
 
     -- Shockingly we only need to implement these two functions for "^" to work!
-    -- You could try to implement the rest, but abs and signum may cause you some trouble.
+    -- You could try to implement the rest, but abs and signum may you cause some trouble.
 
     fromInteger n =
         let m = fromInteger n
@@ -696,11 +701,11 @@ efibSum n = flip quot 4 $ efib n + efib (n + 1)
 -- Binary search over monotonic ascending functions:
 bSearch f t l u =
     case 1 == u - l of
-        True  -> l
+        True  -> l -- if u - l = 1 then l must be the largest index below target
         False -> let m = quot (l + u) 2 in
             case compare (f m) t of
                 LT -> bSearch f t m u
-                EQ -> m
+                EQ -> m - 1 -- if f m = t then f (m - 1) is the largest value less than the target
                 GT -> bSearch f t l m
 
 -- Exponential search over the same:

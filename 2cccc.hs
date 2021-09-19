@@ -40,11 +40,11 @@ efibSum n = flip quot 4 $ efib n + efib (n + 1)
 -- Binary search over monotonic ascending functions:
 bSearch f t l u =
     case 1 == u - l of
-        True  -> l
+        True  -> l -- if u - l = 1 then l must be the largest index below target
         False -> let m = quot (l + u) 2 in
             case compare (f m) t of
                 LT -> bSearch f t m u
-                EQ -> m
+                EQ -> m - 1 -- if f m = t then f (m - 1) is the largest value less than the target
                 GT -> bSearch f t l m
 
 -- Exponential search over the same:
