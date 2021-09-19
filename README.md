@@ -630,8 +630,8 @@ From here we use the exponential search to find the initial values for l and u. 
 ```haskell
 expSearch f t =
     let (l, u) = until -- "Until" reads like a sentence: "Until
-            (\ (_, !u) -> f u > t)                     -- this is true
-            (\ (!l, !u) -> (u, 2 * u))                 -- do this
+            (\ (_, u) -> f u > t)                      -- this is true
+            (\ (l, u) -> (u, 2 * u))                   -- do this
             (0, 1)                                     -- to this."
     in  bSearch f t l u
 ```
@@ -680,7 +680,7 @@ Which I will occasionally use for clarity.
 instance (Num a) => Num (SqMat2 a) where
 
     -- Shockingly we only need to implement these two functions for "^" to work!
-    -- You could try to implement the rest, but abs and signum may you cause some trouble.
+    -- You could try to implement the rest, but abs and signum may cause you some trouble.
 
     fromInteger n =
         let m = fromInteger n

@@ -19,7 +19,7 @@ Which I will occasionally use for clarity.
 instance (Num a) => Num (SqMat2 a) where
 
     -- Shockingly we only need to implement these two functions for "^" to work!
-    -- You could try to implement the rest, but abs and signum may you cause some trouble.
+    -- You could try to implement the rest, but abs and signum may cause you some trouble.
 
     fromInteger n =
         let m = fromInteger n
