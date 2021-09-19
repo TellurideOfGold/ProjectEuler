@@ -577,7 +577,7 @@ efib n =
     ) (n - 1) -- Subtract 1 from our input (Remember r from earlier? It's 1 here.)
 ```
 
-Nice! This is good, but now we need to figure out what our value of n should be. All the work we did so far finds the sum of the sequence Ef up to Ef<sub>n</sub>, which again is the same as the sum of even fibonacci numbers through F<sub>n</sub>.
+Nice! This is good, but now we need to figure out what our value of n should be. All the work we did so far finds the sum of the sequence Ef up to Ef<sub>n</sub>, which again is the same as the sum of even fibonacci numbers through F<sub>3n</sub>.
 
 The problem statement though doesn't say "sum the even fibonacci numbers up through F<sub>{some value}</sub>", it says "sum the even fibonacci numbers whose value does not exceed {some value}". In other words we have a solution in terms of the index of a sequence value, and a problem in terms of a size limit on the value itself.
 
